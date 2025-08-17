@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
                 println!("Response:\n{:#?}", hey);
 
             },
-            1 =>
+            _ =>
             {
                 println!("You chose operation: {}", operation);
                 println!("Not Available yet, please choose another operation.");
