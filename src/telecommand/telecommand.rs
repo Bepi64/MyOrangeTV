@@ -63,7 +63,7 @@ impl Telecommand {
 
     pub async fn start_cli(&self) -> Result<(), Box<dyn std::error::Error>> {
         loop {
-            let (operations, keys, modes) = crate::infos::all_infos::get_all_infos();
+            let (operations, keys, modes, epg_id) = crate::infos::all_infos::get_all_infos();
             let operation = Self::choose_operation(&operations);
             match operation {
                 10 => {
@@ -79,13 +79,25 @@ impl Telecommand {
                             println!("{:#?}", self.send_request(url).await?);
                         },
                         1 =>{
-                            unimplemented!("Handle mode 1 operation");
+                            let key = Self::choose_key(&keys);
+                            let url_press = self.build_url(operation, key, mode, 0).expect("Failed to build URL");
+                            let url_release = self.build_url(operation, key, 2, 0).expect("Failed to build URL");
+                            println!("La touche va être pressé, appuyez Entrée pour relacher");
+                            println!("{:#?}", self.send_request(url_press).await?);
+                            let _ = io::stdin().read_line(&mut String::new());
+                            println!("{:#?}", self.send_request(url_release).await?);
                         },
                         _ =>{
                             println!("Invalid mode selected, please try again.");
                         }
                     }
                 },
+                9 =>
+                {
+                    let epg_id = Self::choose_epg_id(&epg_id);
+                    let url = self.build_url(operation, 0, 0, epg_id).expect("Failed to build URL");
+                    println!("{:#?}", self.send_request(url).await?);
+                }
                 _ =>{
                     unimplemented!("Handle EPG ID operation");
                 }
@@ -130,8 +142,28 @@ impl CliTelecommand for Telecommand {
         }
     }
 
-    fn choose_epg_id(epg_id : &HashMap<&'static str, u16>) -> u16{
-        unimplemented!("Implement EPG ID selection logic");
+    fn choose_epg_id(epg_ids : &HashMap<&'static str, u16>) -> u16{
+        println!("Here the available channels:");
+        for id in epg_ids.keys() {
+            println!("{id}");
+        }
+        loop {
+            io::stdout().flush().unwrap();
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            let mut input = input.trim().to_string();
+            if input.chars().all(|c| c.is_ascii_lowercase())
+            {
+                input = input.to_ascii_uppercase();
+            }
+
+            if epg_ids.contains_key(input.as_str()) {
+                println!("You chose key: {}", input);
+                return *epg_ids.get(input.as_str()).unwrap() as u16;
+            } else {
+                println!("Invalid key, please try again.");
+            }
+        }
     }
 
     fn choose_mode(modes : &HashMap<&'static str, u16>) -> u16{
