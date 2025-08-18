@@ -1,4 +1,3 @@
-pub mod cli;
 pub mod infos;
-pub mod gui;
-pub mod request;
+pub mod aux;
+pub mod telecommand;

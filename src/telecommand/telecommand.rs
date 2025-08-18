@@ -1,0 +1,197 @@
+use crate::aux::{client};
+use crate::aux::api_response::{ApiResponse};
+use std::collections::HashMap;
+use std::io::{self, Write};
+
+pub struct Telecommand{
+    ip : &'static str,
+    port : &'static str,
+    client: reqwest::Client,
+}
+trait CliTelecommand{
+    fn choose_operation(operations : &HashMap<&'static str, u16>) -> u16;
+    fn choose_epg_id(epg_id : &HashMap<&'static str, u16>) -> u16;
+    fn choose_mode(modes : &HashMap<&'static str, u16>) -> u16;
+    fn choose_key(keys : &HashMap<&'static str, u16>) -> u16;
+}
+
+impl Telecommand {
+    pub fn new(ip : &'static str, port: &'static str) -> Self {
+        let client = client::create_http_client();
+        Telecommand { ip, port, client }
+    }
+
+    fn build_url(&self, operation: u16, key: u16, mode: u16, epg_id: u16) -> Result<String, ()> {
+        //let base_uri : String = format!("http://{}:{}/remoteControl/cmd?", ip, port);
+        let ip = self.ip;
+        let port = self.port;
+        match operation {
+            1 => {
+                let uri : String = format!("http://{}:{}/remoteControl/cmd?operation=01&key={}&mode={}", 
+                    ip, port, key, mode);
+                return Ok(uri);
+            },
+            9 => {
+                let number_of_stars = 10 - epg_id.to_string().len();
+                let stars = "*".repeat(number_of_stars);
+                println!("{}", stars.len() + epg_id.to_string().len());
+
+                let uri : String = format!("http://{}:{}/remoteControl/cmd?operation=09&epg_id={}{}&uui=1",
+                    ip, port,stars, epg_id);
+                return Ok(uri);
+            },
+            10 => 
+            {
+                let uri : String = format!("http://{}:{}/remoteControl/cmd?operation=10",
+                    ip, port);
+                return Ok(uri);
+            }
+            _ =>{
+                return Err(());
+            }
+        }
+    }
+
+    async fn send_request(&self, url : String) ->  Result<ApiResponse, Box<dyn std::error::Error>>
+    {
+        let resp = self.client.get(url).send().await?;
+        let json = resp.text().await?;
+        let hey : ApiResponse = serde_json::from_str(&json)?;
+        return Ok(hey);
+    }
+
+
+    pub async fn start_cli(&self) -> Result<(), Box<dyn std::error::Error>> {
+        loop {
+            let (operations, keys, modes) = crate::infos::all_infos::get_all_infos();
+            let operation = Self::choose_operation(&operations);
+            match operation {
+                10 => {
+                    let url = self.build_url(operation, 0, 0, 0).expect("Failed to build URL");
+                    println!("{:#?}", self.send_request(url).await?);
+                },
+                1 => {
+                    let mode = Self::choose_mode(&modes);
+                    match mode{
+                        0 => {
+                            let key = Self::choose_key(&keys);
+                            let url = self.build_url(operation, key, mode, 0).expect("Failed to build URL");
+                            println!("{:#?}", self.send_request(url).await?);
+                        },
+                        1 =>{
+                            unimplemented!("Handle mode 1 operation");
+                        },
+                        _ =>{
+                            println!("Invalid mode selected, please try again.");
+                        }
+                    }
+                },
+                _ =>{
+                    unimplemented!("Handle EPG ID operation");
+                }
+            }
+        }
+    }
+
+}
+
+impl CliTelecommand for Telecommand {
+    fn choose_operation(operations : &HashMap<&'static str, u16>) -> u16
+    {
+        println!("Here the available operations:");
+        for (key, value) in operations.iter() {
+            println!("{}: {}", key, value);
+        }
+        loop{
+
+            io::stdout().flush().unwrap();
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            let input = input.trim();
+
+            let str_num = input.parse::<u16>();
+
+            if (&str_num).is_ok() {
+                let num = str_num.unwrap();
+                if operations.values().any(|&v| v == num) {
+                    let key = operations.iter().find(|&(_, &v)| v == num).map(|(k, _)| *k).unwrap_or("Unknown operation");
+                    println!("You chose operation: {}", key);
+                    return num;
+                } else {
+                    println!("Invalid operation, please try again.");
+                }
+            }
+            else if operations.contains_key(input) {
+                println!("You chose operation: {}", input);
+                return *operations.get(input).unwrap();
+            } else {
+                println!("Invalid input, please try again.");
+            }
+        }
+    }
+
+    fn choose_epg_id(epg_id : &HashMap<&'static str, u16>) -> u16{
+        unimplemented!("Implement EPG ID selection logic");
+    }
+
+    fn choose_mode(modes : &HashMap<&'static str, u16>) -> u16{
+        println!("Here the available modes:");
+        for (&key, value) in modes.iter() {
+            if key == "release"{
+                continue; // Skip the "release" mode
+            }
+            println!("{}: {}", key, value);
+        }
+        loop {
+            io::stdout().flush().unwrap();
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            let input = input.trim();
+            if input == "release" || input == "2" {
+                println!("You cannot choose the 'release' mode, it is only used after 'long press'.");
+                continue;
+            }
+            let str_num = input.parse::<u16>();
+
+            if modes.contains_key(input) {
+                println!("You chose mode: {}", input);
+                return *modes.get(input).unwrap();
+            } else if str_num.is_ok() {
+                let num = str_num.unwrap();
+                if modes.values().any(|&v| v == num) {
+                    let key = modes.iter().find(|&(_, &v)| v == num).map(|(k, _)| *k).unwrap_or("Unknown mode");
+                    println!("You chose mode: {}", key);
+                    return num;
+                } else {
+                    println!("Invalid mode, please try again.");
+                }
+            } else {
+                println!("Invalid input, please try again.");
+            }
+        }
+    }
+
+    fn choose_key(keys : &HashMap<&'static str, u16>) -> u16{
+        println!("Here the available keys:");
+        for keys in keys.keys() {
+            println!("{keys}");
+        }
+        loop {
+            io::stdout().flush().unwrap();
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).unwrap();
+            let input = input.trim();
+
+            if keys.contains_key(input) {
+                println!("You chose key: {}", input);
+                return *keys.get(input).unwrap() as u16;
+            } else {
+                println!("Invalid key, please try again.");
+            }
+            
+        }
+    }
+
+
+}
+
