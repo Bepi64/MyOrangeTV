@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
-pub fn get_map_epgs() -> HashMap<&'static str, u16>
-{
-     HashMap::from([
+pub fn get_map_epgs() -> HashMap<&'static str, u16> {
+    HashMap::from([
         ("TF1", 192_u16),
         ("FRANCE 2", 4),
         ("FRANCE 3", 80),
@@ -69,7 +68,6 @@ pub fn get_map_epgs() -> HashMap<&'static str, u16>
         ("COMEDIE+", 54),
         ("POLAR+", 2326),
         ("WARNER TV", 2334),
-        ("SERIE CLUB", 49)
+        ("SERIE CLUB", 49),
     ])
-
 }

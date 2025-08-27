@@ -1,1 +1,1 @@
-pub mod gui_traits;
+pub mod gui;

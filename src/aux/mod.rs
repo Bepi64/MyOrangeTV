@@ -1,2 +1,2 @@
-pub mod client;
 pub mod api_response;
+pub mod client;

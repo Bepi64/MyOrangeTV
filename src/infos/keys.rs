@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
-pub fn get_map_keys() -> HashMap<&'static str, u16>
-{
-    let keys = HashMap::from ([
+pub fn get_map_keys() -> HashMap<&'static str, u16> {
+    let keys = HashMap::from([
         ("on", 116),
         ("0", 512),
         ("1", 513),
@@ -28,6 +27,6 @@ pub fn get_map_keys() -> HashMap<&'static str, u16>
         ("menu", 139),
         ("play", 164),
         ("rec", 167),
-        ]);
+    ]);
     keys
 }
