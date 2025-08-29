@@ -6,10 +6,10 @@ edition = "2024"
 [features]
 default = []
 cli = []
-gui = ["egui"]
+gui = ["eframe"]
 
 [dependencies]
-egui = { version ="0.32.1", optional = true }
+eframe = { version = "0.32.1", features = ["wgpu"], optional = true}
 reqwest = { version="0.12.23", default-features = false }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.142"

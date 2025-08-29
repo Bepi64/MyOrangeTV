@@ -1,29 +1,24 @@
 use crate::telecommand::telecommand::Telecommand;
+use eframe::{egui, glow::Context};
 
-trait GuiTelecommand {
-    fn prepare_gui(&self) -> Result<(), Box<dyn std::error::Error>>;
-    fn run_gui(&self) -> Result<(), Box<dyn std::error::Error>>;
-    fn cleanup_gui(&self) -> Result<(), Box<dyn std::error::Error>>;
-}
+#[derive(Default)]
+pub struct GuiTelecommand {}
 
-impl GuiTelecommand for Telecommand {
-    fn prepare_gui(&self) -> Result<(), Box<dyn std::error::Error>> {
-        todo!("Prepare GUI for telecommand");
-    }
-
-    fn run_gui(&self) -> Result<(), Box<dyn std::error::Error>> {
-        unimplemented!("Run GUI for telecommand");
-    }
-
-    fn cleanup_gui(&self) -> Result<(), Box<dyn std::error::Error>> {
-        todo!("Cleanup GUI for telecommand");
+impl GuiTelecommand {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        Self::default()
     }
 }
 
-impl Telecommand {
-    pub fn start_gui(&self) {
-        if let Err(e) = self.run_gui() {
-            eprintln!("Failed to start GUI telecommand: {}", e);
-        }
+impl eframe::App for GuiTelecommand {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("Hello World!");
+        });
+    }
+
+
+    fn on_exit(&mut self, _gl: Option<&Context>) {
+        // Perform any necessary cleanup here
     }
 }
