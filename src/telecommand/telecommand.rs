@@ -1,14 +1,15 @@
 use crate::aux::api_response::ApiResponse;
 use crate::aux::client;
 
+#[derive(Debug)]
 pub struct Telecommand {
-    ip: &'static str,
-    port: &'static str,
+    ip: String,
+    port: String,
     client: reqwest::Client,
 }
 
 impl Telecommand {
-    pub fn new(ip: &'static str, port: &'static str) -> Self {
+    pub fn new(ip: String, port: String) -> Self {
         let client = client::create_http_client();
         Telecommand { ip, port, client }
     }
@@ -21,8 +22,8 @@ impl Telecommand {
         epg_id: u16,
     ) -> Result<String, ()> {
         //let base_uri : String = format!("http://{}:{}/remoteControl/cmd?", ip, port);
-        let ip = self.ip;
-        let port = self.port;
+        let ip = &self.ip;
+        let port = &self.port;
         match operation {
             1 => {
                 let uri: String = format!(
