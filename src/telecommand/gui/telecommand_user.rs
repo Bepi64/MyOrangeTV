@@ -40,8 +40,11 @@ impl eframe::App for GuiCommand<'_> {
                 {
                     let val = *self.keys.get("on").unwrap();
                     tokio::spawn(async move {
-                        let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                        telecommand.send_request(url).await.expect("Could not send the url");
+                        let url = telecommand.build_url(1, val, 0, 0);
+                        match telecommand.send_request(url).await {
+                            Ok(_) => (),
+                            Err(_) => std::process::exit(1),
+                        }
                     });
                 }
             });
@@ -57,8 +60,11 @@ impl eframe::App for GuiCommand<'_> {
                 {
                     let val = *self.keys.get("menu").unwrap();
                     tokio::spawn(async move {
-                        let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                        let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                        let url = telecommand.build_url(1, val, 0, 0);
+                        match telecommand.send_request(url).await {
+                            Ok(_) => (),
+                            Err(_) => std::process::exit(1),
+                        }
                     });
                 }
             });
@@ -70,11 +76,17 @@ impl eframe::App for GuiCommand<'_> {
                 let telecommand = Arc::clone(&self.telecommand);
                 ui.horizontal(|ui| {
                     ui.add_space(ui.available_width() / 2.0 - 30.0);
-                    if ui.add_sized(egui::Vec2::new(60.0, 50.0), Button::new("Up")).clicked() {
+                    if ui
+                        .add_sized(egui::Vec2::new(60.0, 50.0), Button::new("Up"))
+                        .clicked()
+                    {
                         let val = *self.keys.get("up").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
                     }
                 });
@@ -86,31 +98,48 @@ impl eframe::App for GuiCommand<'_> {
                     let left_space = (ui.available_width() - total_width - 14.0) / 2.0;
                     ui.add_space(left_space);
 
-                let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new("Left")).clicked() {
+                    let telecommand = Arc::clone(&self.telecommand);
+                    if ui
+                        .add_sized(egui::Vec2::new(50.0, 50.0), Button::new("Left"))
+                        .clicked()
+                    {
                         let val = *self.keys.get("left").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
-
                     }
 
-                let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(60.0, 50.0), Button::new("OK")).clicked() {
+                    let telecommand = Arc::clone(&self.telecommand);
+                    if ui
+                        .add_sized(egui::Vec2::new(60.0, 50.0), Button::new("OK"))
+                        .clicked()
+                    {
                         let val = *self.keys.get("ok").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
                     }
 
-                let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new("Right")).clicked() {
+                    let telecommand = Arc::clone(&self.telecommand);
+                    if ui
+                        .add_sized(egui::Vec2::new(50.0, 50.0), Button::new("Right"))
+                        .clicked()
+                    {
                         let val = *self.keys.get("right").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
                     }
                 });
@@ -119,13 +148,18 @@ impl eframe::App for GuiCommand<'_> {
                 // Bouton DOWN en bas
                 ui.horizontal(|ui| {
                     ui.add_space(ui.available_width() / 2.0 - 30.0);
-                    if ui.add_sized(egui::Vec2::new(60.0, 50.0), Button::new("Down")).clicked() {
+                    if ui
+                        .add_sized(egui::Vec2::new(60.0, 50.0), Button::new("Down"))
+                        .clicked()
+                    {
                         let val = *self.keys.get("down").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
-
                     }
                 });
             });
@@ -137,12 +171,15 @@ impl eframe::App for GuiCommand<'_> {
                         egui::Vec2::new(80.0, 30.0),
                         Button::new("Back").corner_radius(10.0),
                     )
-                        .clicked()
+                    .clicked()
                 {
                     let val = *self.keys.get("back").unwrap();
                     tokio::spawn(async move {
-                        let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                        let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                        let url = telecommand.build_url(1, val, 0, 0);
+                        match telecommand.send_request(url).await {
+                            Ok(_) => (),
+                            Err(_) => std::process::exit(1),
+                        }
                     });
                 }
             });
@@ -159,14 +196,22 @@ impl eframe::App for GuiCommand<'_> {
                 ui.vertical(|ui| {
                     for i in ['1', '4', '7'] {
                         let telecommand = Arc::clone(&self.telecommand);
-                        if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new(&i.to_string()).corner_radius(25.0)).clicked() {
-                            let key = i.to_string();      // key: String
+                        if ui
+                            .add_sized(
+                                egui::Vec2::new(50.0, 50.0),
+                                Button::new(i.to_string()).corner_radius(25.0),
+                            )
+                            .clicked()
+                        {
+                            let key = i.to_string(); // key: String
                             let val = *self.keys.get(key.as_str()).unwrap(); // key.as_str(): &str
                             tokio::spawn(async move {
-                                let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                                let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                                let url = telecommand.build_url(1, val, 0, 0);
+                                match telecommand.send_request(url).await {
+                                    Ok(_) => (),
+                                    Err(_) => std::process::exit(1),
+                                }
                             });
-
                         }
                     }
                 });
@@ -175,12 +220,21 @@ impl eframe::App for GuiCommand<'_> {
                 ui.vertical(|ui| {
                     for i in ['2', '5', '8'] {
                         let telecommand = Arc::clone(&self.telecommand);
-                        if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new(&i.to_string()).corner_radius(25.0)).clicked() {
-                            let key = i.to_string();      // key: String
+                        if ui
+                            .add_sized(
+                                egui::Vec2::new(50.0, 50.0),
+                                Button::new(i.to_string()).corner_radius(25.0),
+                            )
+                            .clicked()
+                        {
+                            let key = i.to_string(); // key: String
                             let val = *self.keys.get(key.as_str()).unwrap(); // key.as_str(): &str
                             tokio::spawn(async move {
-                                let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                                let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                                let url = telecommand.build_url(1, val, 0, 0);
+                                match telecommand.send_request(url).await {
+                                    Ok(_) => (),
+                                    Err(_) => std::process::exit(1),
+                                }
                             });
                         }
                     }
@@ -189,76 +243,117 @@ impl eframe::App for GuiCommand<'_> {
                 ui.vertical(|ui| {
                     for i in ['3', '6', '9'] {
                         let telecommand = Arc::clone(&self.telecommand);
-                        if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new(&i.to_string()).corner_radius(25.0)).clicked() {
-                            let key = i.to_string();      // key: String
+                        if ui
+                            .add_sized(
+                                egui::Vec2::new(50.0, 50.0),
+                                Button::new(i.to_string()).corner_radius(25.0),
+                            )
+                            .clicked()
+                        {
+                            let key = i.to_string(); // key: String
                             let val = *self.keys.get(key.as_str()).unwrap(); // key.as_str(): &str
                             tokio::spawn(async move {
-                                let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                                let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                                let url = telecommand.build_url(1, val, 0, 0);
+                                match telecommand.send_request(url).await {
+                                    Ok(_) => (),
+                                    Err(_) => std::process::exit(1),
+                                }
                             });
                         }
                     }
                 });
-           });
+            });
 
             ui.separator();
-            
+
             // Matrice 2x2 pour VOL+, VOL-, CH+, CH-
             ui.horizontal_centered(|ui| {
                 let matrix_width = 2.0 * 50.0; // 2 colonnes de 40px chacune
                 let left_space = (ui.available_width() - matrix_width - 10.0) / 2.0;
                 ui.add_space(left_space);
-                
+
                 // Colonne 1 : VOL+, CH+
                 ui.vertical(|ui| {
                     let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new("VOL+").corner_radius(25.0)).clicked() {
+                    if ui
+                        .add_sized(
+                            egui::Vec2::new(50.0, 50.0),
+                            Button::new("VOL+").corner_radius(25.0),
+                        )
+                        .clicked()
+                    {
                         let val = *self.keys.get("vol+").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
                     }
 
                     let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new("VOL-").corner_radius(25.0)).clicked() {
+                    if ui
+                        .add_sized(
+                            egui::Vec2::new(50.0, 50.0),
+                            Button::new("VOL-").corner_radius(25.0),
+                        )
+                        .clicked()
+                    {
                         let val = *self.keys.get("vol-").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
                     }
                 });
-                
+
                 // Colonne 2 : VOL-, CH-
                 ui.vertical(|ui| {
-
                     let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new("CH+").corner_radius(25.0)).clicked() {
+                    if ui
+                        .add_sized(
+                            egui::Vec2::new(50.0, 50.0),
+                            Button::new("CH+").corner_radius(25.0),
+                        )
+                        .clicked()
+                    {
                         let val = *self.keys.get("ch+").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
-
                     }
 
                     let telecommand = Arc::clone(&self.telecommand);
-                    if ui.add_sized(egui::Vec2::new(50.0, 50.0), Button::new("CH-").corner_radius(25.0)).clicked() {
+                    if ui
+                        .add_sized(
+                            egui::Vec2::new(50.0, 50.0),
+                            Button::new("CH-").corner_radius(25.0),
+                        )
+                        .clicked()
+                    {
                         let val = *self.keys.get("ch-").unwrap();
                         tokio::spawn(async move {
-                            let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                            let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                            let url = telecommand.build_url(1, val, 0, 0);
+                            match telecommand.send_request(url).await {
+                                Ok(_) => (),
+                                Err(_) => std::process::exit(1),
+                            }
                         });
                     }
                 });
-            }); 
-              
+            });
         });
 
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
             ui.horizontal(|ui| {
-
                 let telecommand = Arc::clone(&self.telecommand);
                 ui.add_space(ui.available_width() / 2.0 - 50.0 - 5.0); // Décale vers le centre
                 if ui
@@ -270,8 +365,11 @@ impl eframe::App for GuiCommand<'_> {
                 {
                     let val = *self.keys.get("rec").unwrap();
                     tokio::spawn(async move {
-                        let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                        let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                        let url = telecommand.build_url(1, val, 0, 0);
+                        match telecommand.send_request(url).await {
+                            Ok(_) => (),
+                            Err(_) => std::process::exit(1),
+                        }
                     });
                 }
 
@@ -281,12 +379,15 @@ impl eframe::App for GuiCommand<'_> {
                         egui::Vec2::new(50.0, 50.0),
                         Button::new("PLAY").corner_radius(25.0),
                     )
-                        .clicked()
+                    .clicked()
                 {
                     let val = *self.keys.get("play").unwrap();
                     tokio::spawn(async move {
-                        let url = telecommand.build_url(1, val, 0, 0).expect("Could not build the url");
-                        let resp = telecommand.send_request(url).await.expect("Could not send the url");
+                        let url = telecommand.build_url(1, val, 0, 0);
+                        match telecommand.send_request(url).await {
+                            Ok(_) => (),
+                            Err(_) => std::process::exit(1),
+                        }
                     });
                 }
             });

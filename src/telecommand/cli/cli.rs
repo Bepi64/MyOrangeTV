@@ -139,9 +139,7 @@ impl Telecommand {
             let operation = Self::choose_operation(&operations);
             match operation {
                 10 => {
-                    let url = self
-                        .build_url(operation, 0, 0, 0)
-                        .expect("Failed to build URL");
+                    let url = self.build_url(operation, 0, 0, 0);
                     println!("{:#?}", self.send_request(url).await?);
                 }
                 1 => {
@@ -149,19 +147,13 @@ impl Telecommand {
                     match mode {
                         0 => {
                             let key = Self::choose_key(&keys);
-                            let url = self
-                                .build_url(operation, key, mode, 0)
-                                .expect("Failed to build URL");
+                            let url = self.build_url(operation, key, mode, 0);
                             println!("{:#?}", self.send_request(url).await?);
                         }
                         1 => {
                             let key = Self::choose_key(&keys);
-                            let url_press = self
-                                .build_url(operation, key, mode, 0)
-                                .expect("Failed to build URL");
-                            let url_release = self
-                                .build_url(operation, key, 2, 0)
-                                .expect("Failed to build URL");
+                            let url_press = self.build_url(operation, key, mode, 0);
+                            let url_release = self.build_url(operation, key, 2, 0);
                             println!("La touche va être pressé, appuyez Entrée pour relacher");
                             println!("{:#?}", self.send_request(url_press).await?);
                             let _ = io::stdin().read_line(&mut String::new());
@@ -174,9 +166,7 @@ impl Telecommand {
                 }
                 9 => {
                     let epg_id = Self::choose_epg_id(&epg_id);
-                    let url = self
-                        .build_url(operation, 0, 0, epg_id)
-                        .expect("Failed to build URL");
+                    let url = self.build_url(operation, 0, 0, epg_id);
                     println!("{:#?}", self.send_request(url).await?);
                 }
                 _ => {

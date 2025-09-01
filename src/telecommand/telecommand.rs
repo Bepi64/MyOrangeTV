@@ -1,5 +1,6 @@
 use crate::aux::api_response::ApiResponse;
 use crate::aux::client;
+use std::process;
 
 #[derive(Debug)]
 pub struct Telecommand {
@@ -10,17 +11,14 @@ pub struct Telecommand {
 
 impl Telecommand {
     pub fn new(ip: String, port: String) -> Self {
-        let client = client::create_http_client();
+        let client = match client::create_http_client() {
+            Ok(client) => client,
+            Err(_) => process::exit(1),
+        };
         Telecommand { ip, port, client }
     }
 
-    pub fn build_url(
-        &self,
-        operation: u16,
-        key: u16,
-        mode: u16,
-        epg_id: u16,
-    ) -> Result<String, ()> {
+    pub fn build_url(&self, operation: u16, key: u16, mode: u16, epg_id: u16) -> String {
         //let base_uri : String = format!("http://{}:{}/remoteControl/cmd?", ip, port);
         let ip = &self.ip;
         let port = &self.port;
@@ -30,26 +28,23 @@ impl Telecommand {
                     "http://{}:{}/remoteControl/cmd?operation=01&key={}&mode={}",
                     ip, port, key, mode
                 );
-                return Ok(uri);
+                uri
             }
             9 => {
                 let number_of_stars = 10 - epg_id.to_string().len();
                 let stars = "*".repeat(number_of_stars);
-                println!("{}", stars.len() + epg_id.to_string().len());
 
                 let uri: String = format!(
                     "http://{}:{}/remoteControl/cmd?operation=09&epg_id={}{}&uui=1",
                     ip, port, stars, epg_id
                 );
-                return Ok(uri);
+                uri
             }
             10 => {
                 let uri: String = format!("http://{}:{}/remoteControl/cmd?operation=10", ip, port);
-                return Ok(uri);
+                uri
             }
-            _ => {
-                return Err(());
-            }
+            _ => String::new(),
         }
     }
 
@@ -60,6 +55,6 @@ impl Telecommand {
         let resp = self.client.get(url).send().await?;
         let json = resp.text().await?;
         let hey: ApiResponse = serde_json::from_str(&json)?;
-        return Ok(hey);
+        Ok(hey)
     }
 }

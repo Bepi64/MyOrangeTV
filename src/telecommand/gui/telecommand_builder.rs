@@ -1,11 +1,15 @@
 use eframe::egui;
 use std::cell::RefCell;
+use std::collections::HashSet;
+use std::net::IpAddr;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+use egui::Button;
 
-#[derive(Debug)]
 pub struct TelecommandBuilder {
     pub ip_input: Rc<RefCell<String>>,
     pub port_input: Rc<RefCell<String>>,
+    searcher: Arc<Mutex<HashSet<(String, String)>>>,
     ip_check: bool,
     port_check: bool,
     submited: Rc<RefCell<bool>>,
@@ -22,9 +26,15 @@ impl TelecommandBuilder {
         set_styles(&cc.egui_ctx);
         let ip_check = false;
         let port_check = false;
+        let searcher = Arc::new(Mutex::new(HashSet::new()));
+        let clone = Arc::clone(&searcher);
+        std::thread::spawn(move || {
+            crate::discover::discover::search_decoder(clone);
+        });
         Self {
             ip_input,
             port_input,
+            searcher,
             ip_check,
             port_check,
             submited,
@@ -96,7 +106,25 @@ impl eframe::App for TelecommandBuilder {
                 });
             });
             ui.separator();
-            ui.collapsing("Existant Orange TV", |ui| ui.label("todo()!"));
+            ui.collapsing("Existant Orange TV", |ui| {
+                ui.vertical(|ui| {
+                    if let Ok(hashset) = self.searcher.lock() {
+                        for (ip, port) in hashset.iter() {
+                            if ui
+                                .add_sized(egui::Vec2::new(ui.available_width(), 50.0), Button::new(format!("Decodeur TV at {}:{}", ip, port)))
+                                .clicked()
+                            {
+                                *ip_input = (*ip).clone();
+                                self.ip_check = true;
+                                *port_input = (*port).clone();
+                                self.port_check = true;
+                                *submited = true;
+                                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                            }
+                        }
+                    }
+                });
+            });
         });
     }
 }
