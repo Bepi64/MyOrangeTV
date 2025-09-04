@@ -84,7 +84,7 @@ pub fn start_gui() {
     let port = Rc::new(RefCell::new(String::new()));
     let next = Rc::new(RefCell::new(false));
 
-    let _ = eframe::run_native(
+    let err1 = eframe::run_native(
         "My Orange Decoder Information",
         options1,
         Box::new(|cc| {
@@ -99,21 +99,31 @@ pub fn start_gui() {
         }),
     );
 
+    if let Err(e) = err1{
+        eprintln!("Error during the first run_native");
+        std::process::exit(1);
+    }
+
     if *next.borrow() {
         let (operations, keys, modes, epg_id) = crate::infos::all_infos::get_all_infos();
-        let _ = eframe::run_native(
+        let err2 = eframe::run_native(
             "My OrangeTV Telecommand",
             options2,
             Box::new(|cc| {
                 // This gives us image support:
 
                 Ok(Box::new(GuiCommand::new(
-                    cc,
-                    (*ip.borrow()).clone(),
-                    (*port.borrow()).clone(),
-                    &keys,
+                            cc,
+                            (*ip.borrow()).clone(),
+                            (*port.borrow()).clone(),
+                            &keys,
                 )))
             }),
         );
+
+        if let Err(e) = err2{
+            eprintln!("Error during the first run_native");
+            std::process::exit(1);
+        }
     }
 }
