@@ -1,0 +1,1 @@
+export RUSTFLAGS="$RUSTFLAGS -L /home/guess/Downloads/libnp/Lib/x64"

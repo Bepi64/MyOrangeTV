@@ -10,11 +10,12 @@ fn get_interfaces() -> Vec<NetworkInterface> {
     // Get a vector with all network interfaces found
     let all_interfaces = pnet::datalink::interfaces();
 
+    dbg!(&all_interfaces);
     // Search for the default interface - the one that is
     // up, not loopback and has an IP.
     all_interfaces
         .into_iter()
-        .filter(|e| e.is_up() && !e.is_loopback() && !e.ips.is_empty())
+        .filter(|e| !e.is_loopback() && !e.ips.is_empty())
         .collect()
 }
 
@@ -23,6 +24,7 @@ fn get_ipv4(interface: NetworkInterface) -> Vec<Ipv4Network> {
         .ips
         .into_iter()
         .filter_map(|ip| match ip {
+            IpNetwork::V4(v4) if v4.ip() == Ipv4Addr::new(0, 0, 0, 0) => None, 
             IpNetwork::V4(v4) => Some(v4),
             IpNetwork::V6(_) => None,
         })
@@ -42,6 +44,8 @@ fn now() -> u64 {
 
 pub fn search_decoder(arc: Arc<Mutex<HashSet<(String, String)>>>) {
     let all_ipvs4: Vec<Ipv4Network> = get_all_ipv4(get_interfaces());
+
+    dbg!(&all_ipvs4);
 
     let mut handles = vec![];
 
