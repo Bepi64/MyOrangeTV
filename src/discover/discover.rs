@@ -10,7 +10,6 @@ fn get_interfaces() -> Vec<NetworkInterface> {
     // Get a vector with all network interfaces found
     let all_interfaces = pnet::datalink::interfaces();
 
-    dbg!(&all_interfaces);
     // Search for the default interface - the one that is
     // up, not loopback and has an IP.
     all_interfaces
@@ -42,19 +41,25 @@ fn now() -> u64 {
         .as_secs()
 }
 
+
+
+fn random_u16_above_1000() -> u16 {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    rng.gen_range(1001..=u16::MAX)
+}
+
 pub fn search_decoder(arc: Arc<Mutex<HashSet<(String, String)>>>) {
     let all_ipvs4: Vec<Ipv4Network> = get_all_ipv4(get_interfaces());
 
-    dbg!(&all_ipvs4);
 
     let mut handles = vec![];
 
     for ipv4 in all_ipvs4 {
         let set = Arc::clone(&arc);
-        let special_ip = Ipv4Addr::new(239, 255, 255, 250);
-        let special_port = 1900;
+        let handle = std::thread::spawn(move || {
 
-        let ssdp_msg: &str = "\
+            let ssdp_msg: &str = "\
 M-SEARCH * HTTP/1.1\r\n\
 HOST: 239.255.255.250:1900\r\n\
 MAN: \"ssdp:discover\"\r\n\
@@ -62,9 +67,32 @@ MX: 2\r\n\
 ST: ssdp:all\r\n\
 \r\n";
 
-        let handle = std::thread::spawn(move || {
+            let special_ip = Ipv4Addr::new(239, 255, 255, 250);
+            let special_port = 1900;
+
+            let mut used_port = random_u16_above_1000();
+
+            let mut future_socket = None;
+            let mut tempt = 0;
+            loop{
+                used_port = random_u16_above_1000();
+                if let Ok(socket) = std::net::UdpSocket::bind((ipv4.ip(), used_port)){
+                    future_socket = Some(socket);
+                    break;
+                }
+                else{
+                    tempt += 1;
+                    if tempt == 10{
+                        return;
+                    }
+                }
+            }
+            if future_socket.is_none(){
+                return;
+            }
             let start_time = now();
-            let socket = std::net::UdpSocket::bind((ipv4.ip(), special_port)).unwrap();
+            
+            let socket = future_socket.unwrap();
             let _ = socket.set_read_timeout(Some(std::time::Duration::from_secs(5)));
             let _ = socket.send_to(ssdp_msg.as_bytes(), (special_ip, special_port));
 

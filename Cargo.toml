@@ -18,6 +18,7 @@ tokio = { version = "1.0", default-features = false, features = ["rt-multi-threa
 serde-xml-rs = { version = "0.8.1", default-features = false, optional = true}
 pnet = { version = "0.35.0", features = ["ipnetwork", "pnet_datalink"], optional = true}
 url = { version = "2.5.7", default-features = false, optional = true}
+rand = "0.9.2"
 
 [profile.release]
 panic = "abort"
